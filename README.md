@@ -1,2 +1,2 @@
-# threejs-earth
-Graced项目Earth的复刻版
+# threejs-globe
+Graced项目globe的复刻版

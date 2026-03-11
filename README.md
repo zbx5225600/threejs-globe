@@ -1,6 +1,6 @@
 # 全球 CO₂ 排放可视化 - Three.js 版本
 
-基于 GRACED（Global gRidded dAily CO2 Emissions Dataset）数据集的 3D 地球 CO₂排放可视化项目。
+3D 地球 CO₂排放可视化项目。
 
 ## 功能特点
 
@@ -22,7 +22,7 @@
 
 ## 数据来源
 
-基于 GRACED 全球网格化日 CO₂ 排放数据集：
+全球网格化日 CO₂ 排放数据集：
 - 空间分辨率：0.1° × 0.1°
 - 时间分辨率：1 天
 - 数据单位：kgC/h per cell
@@ -142,12 +142,7 @@ react-demo/
 | 4-6s | 航线光点渐显 |
 | 5s+ | 所有特效完成，正常显示 |
 
-## 引用
 
-如使用此项目，请引用 GRACED 数据集相关论文：
-
-1. Dou, X., Hong, J., Ciais, P. et al. Near-real-time global gridded daily CO2 emissions 2021. Sci Data 10, 69 (2023).
-2. Dou, X., Wang, Y., Ciais, P. et al. Near-real-time global gridded daily CO2 emissions. The Innovation 3(1), 100182 (2022).
 
 ## 许可证
 

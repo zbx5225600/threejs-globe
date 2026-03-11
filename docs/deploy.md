@@ -48,8 +48,8 @@ npm run build
 
 ## 环境变量
 
-如需连接真实的GRACED API，请设置：
+如需连接真实的碳排放数据 API，请设置：
 ```
-VITE_GRACED_API_URL=https://carbonmonitor-graced.com/api
-VITE_GRACED_API_KEY=your_api_key
+VITE_API_URL=https://your-api-url.com/api
+VITE_API_KEY=your_api_key
 ```

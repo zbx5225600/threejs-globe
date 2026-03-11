@@ -43,7 +43,7 @@ export default function CO2Globe() {
 
       {/* 顶部标题 */}
       <header className="globe-header">
-        <h1>GRACED 全球 CO₂ 排放监测</h1>
+        <h1>全球 CO₂ 排放监测</h1>
         <p>Global Carbon Emission Monitoring System</p>
       </header>
 
@@ -68,7 +68,7 @@ export default function CO2Globe() {
       {/* 操作提示 */}
       <footer className="globe-footer">
         <p>拖拽旋转 | 滚轮缩放</p>
-        <p className="globe-source">数据来源：GRACED 全球网格化日 CO₂ 排放数据集</p>
+        <p className="globe-source">数据来源：全球网格化日 CO₂ 排放数据集</p>
       </footer>
     </div>
   );

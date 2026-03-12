@@ -1,3 +1,5 @@
+@import './legend.css';
+
 /* 顶部标题样式 */
 .globe-header {
   position: absolute;

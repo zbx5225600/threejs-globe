@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
@@ -32,6 +32,7 @@ const RealEarth = ({ continents, globeData }) => {
   // 视频纹理初始化 - 使用 useMemo 避免重复创建
   const videoTexture = useMemo(() => {
     const video = document.createElement('video');
+    video.preload = 'auto';
     video.src = videoSrc;
     video.crossOrigin = 'anonymous';
     video.loop = true;
@@ -43,6 +44,16 @@ const RealEarth = ({ continents, globeData }) => {
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
     return texture;
+  }, []);
+
+  // 预加载图片资源
+  useEffect(() => {
+    const loadTexture = (url) => {
+      const img = new Image();
+      img.src = url;
+    };
+    loadTexture(basemapImg);
+    loadTexture(earthImg);
   }, []);
 
   useFrame(({ clock }) => {

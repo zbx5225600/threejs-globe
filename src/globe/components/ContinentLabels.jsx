@@ -1,19 +1,27 @@
 import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { latLngToVector3 } from '../utils/coordinate';
 
 /**
  * 大洲标签组件
- * 与地球同步旋转
+ * 与地球同步旋转，但标签始终正对镜头
  */
 const ContinentLabels = ({ continents, earthRotationRef, earthRadius = 2 }) => {
   const groupRef = useRef();
+  const textRefs = useRef([]);
+  const { camera } = useThree();
 
   useFrame(() => {
     if (groupRef.current && earthRotationRef?.current) {
       groupRef.current.rotation.y = earthRotationRef.current.rotation.y;
     }
+    // 让每个标签始终正对摄像机
+    textRefs.current.forEach((textRef) => {
+      if (textRef) {
+        textRef.lookAt(camera.position);
+      }
+    });
   });
 
   return (
@@ -23,13 +31,13 @@ const ContinentLabels = ({ continents, earthRotationRef, earthRadius = 2 }) => {
         return (
           <Text
             key={`continent-${index}`}
+            ref={(el) => (textRefs.current[index] = el)}
             position={pos}
             fontSize={0.04}
             color="rgba(255, 255, 255, 0.6)"
             anchorX="center"
             anchorY="middle"
             font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
-            rotation={[0, Math.PI, 0]}
           >
             {continent.en}
           </Text>

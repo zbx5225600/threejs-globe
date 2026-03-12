@@ -25,9 +25,10 @@ const Atmosphere = ({ atmosphereRef, atmosphereMaterialRef, earthRadius = 2 }) =
 
     if (atmosphereRef?.current) {
       atmosphereRef.current.uniforms.time.value = time;
+      atmosphereRef.current.uniforms.opacity.value = opacity;
     }
     if (atmosphereMaterialRef?.current) {
-      atmosphereMaterialRef.current.opacity = opacity;
+      atmosphereMaterialRef.current.opacity = 1;
     }
   });
 
@@ -38,11 +39,11 @@ const Atmosphere = ({ atmosphereRef, atmosphereMaterialRef, earthRadius = 2 }) =
         ref={atmosphereMaterialRef}
         vertexShader={atmosphereVertexShader}
         fragmentShader={atmosphereFragmentShader}
-        uniforms={{ time: { value: 0 } }}
+        uniforms={{ time: { value: 0 }, opacity: { value: 0 } }}
         blending={THREE.AdditiveBlending}
         side={THREE.BackSide}
         transparent
-        opacity={0}
+        opacity={1}
         depthWrite={false}
       />
     </mesh>

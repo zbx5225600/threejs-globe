@@ -13,6 +13,7 @@ export const atmosphereFragmentShader = `
   varying vec3 vNormal;
   varying vec3 vPosition;
   uniform float time;
+  uniform float opacity;
 
   void main() {
     float viewAngle = dot(vNormal, vec3(0.0, 0.0, 1.0));
@@ -24,6 +25,6 @@ export const atmosphereFragmentShader = `
     finalColor = mix(finalColor, color3, intensity * intensity * 3.0);
     float pulse = sin(time * 0.5) * 0.05 + 0.95;
     finalColor *= pulse;
-    gl_FragColor = vec4(finalColor, intensity * 0.8);
+    gl_FragColor = vec4(finalColor, intensity * 0.8 * opacity);
   }
 `;

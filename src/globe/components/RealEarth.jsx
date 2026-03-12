@@ -104,17 +104,18 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
       {/* 地球旋转组 */}
       <group ref={earthRef}>
         {/* 第 1 层：basemap1.jpg 夜景灯光底图 */}
-        <Sphere args={[earthRadius, sphereSegments, sphereSegments]}>
+        <Sphere args={[earthRadius, sphereSegments, sphereSegments]} renderOrder={1}>
           <meshBasicMaterial
             ref={basemapMaterialRef}
             map={basemapTexture}
             transparent
             opacity={0}
+            depthWrite={false}
           />
         </Sphere>
 
         {/* 第 2 层：earth_boundary.jpg 边界线 */}
-        <Sphere args={[earthRadius + 0.001, sphereSegments, sphereSegments]}>
+        <Sphere args={[earthRadius + 0.001, sphereSegments, sphereSegments]} renderOrder={2}>
           <meshBasicMaterial
             ref={earthMaterialRef}
             map={earthTexture}
@@ -126,7 +127,7 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
         </Sphere>
 
         {/* 第 3 层：video 视频 */}
-        <Sphere args={[earthRadius + 0.002, sphereSegments, sphereSegments]}>
+        <Sphere args={[earthRadius + 0.002, sphereSegments, sphereSegments]} renderOrder={3}>
           <meshBasicMaterial
             ref={videoMaterialRef}
             map={videoTexture}

@@ -139,7 +139,7 @@ const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
   });
 
   return (
-    <points ref={pointsRef}>
+    <points ref={pointsRef} renderOrder={10}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"

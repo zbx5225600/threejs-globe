@@ -16,7 +16,7 @@ import FlightRoutes from './FlightRoutes';
  * 真实地球组件 - 带渐显动画
  * 整合所有地球相关子组件
  */
-const RealEarth = ({ continents, globeData }) => {
+const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 }) => {
   const earthRef = useRef();
   const atmosphereRef = useRef();
   const atmosphereMaterialRef = useRef();
@@ -25,6 +25,9 @@ const RealEarth = ({ continents, globeData }) => {
   const videoMaterialRef = useRef();
   const earthOpacityRef = useRef(0);
   const [basemapTexture, earthTexture] = useLoader(THREE.TextureLoader, [basemapImg, earthImg]);
+
+  // 根据屏幕类型调整分段数（移动端减少分段数提升性能）
+  const sphereSegments = isMobile ? 48 : 64;
 
   // 从 base-data.json 加载航线数据 - 使用 useMemo 避免重复加载
   const routes = useMemo(() => baseData.routes || [], []);
@@ -101,7 +104,7 @@ const RealEarth = ({ continents, globeData }) => {
       {/* 地球旋转组 */}
       <group ref={earthRef}>
         {/* 第 1 层：basemap1.jpg 夜景灯光底图 */}
-        <Sphere args={[2, 64, 64]}>
+        <Sphere args={[earthRadius, sphereSegments, sphereSegments]}>
           <meshBasicMaterial
             ref={basemapMaterialRef}
             map={basemapTexture}
@@ -111,7 +114,7 @@ const RealEarth = ({ continents, globeData }) => {
         </Sphere>
 
         {/* 第 2 层：earth_boundary.jpg 边界线 */}
-        <Sphere args={[2.001, 64, 64]}>
+        <Sphere args={[earthRadius + 0.001, sphereSegments, sphereSegments]}>
           <meshBasicMaterial
             ref={earthMaterialRef}
             map={earthTexture}
@@ -123,7 +126,7 @@ const RealEarth = ({ continents, globeData }) => {
         </Sphere>
 
         {/* 第 3 层：video 视频 */}
-        <Sphere args={[2.002, 64, 64]}>
+        <Sphere args={[earthRadius + 0.002, sphereSegments, sphereSegments]}>
           <meshBasicMaterial
             ref={videoMaterialRef}
             map={videoTexture}
@@ -135,20 +138,20 @@ const RealEarth = ({ continents, globeData }) => {
         </Sphere>
 
         {/* 第 4 层：粒子点 CO2 排放数据 */}
-        <EmissionParticles globeData={globeData} />
+        <EmissionParticles globeData={globeData} earthRadius={earthRadius} />
 
         {/* 第 5 层：航线 */}
-        <FlightRoutes routes={routes} />
+        <FlightRoutes routes={routes} earthRadius={earthRadius} />
       </group>
 
       {/* 地球光晕 */}
-      <EarthGlow earthOpacityRef={earthOpacityRef} />
+      <EarthGlow earthOpacityRef={earthOpacityRef} earthRadius={earthRadius} />
 
       {/* 大气层 */}
-      <Atmosphere atmosphereRef={atmosphereRef} atmosphereMaterialRef={atmosphereMaterialRef} />
+      <Atmosphere atmosphereRef={atmosphereRef} atmosphereMaterialRef={atmosphereMaterialRef} earthRadius={earthRadius} />
 
       {/* 大洲标签 */}
-      <ContinentLabels continents={continents} earthRotationRef={earthRef} />
+      <ContinentLabels continents={continents} earthRotationRef={earthRef} earthRadius={earthRadius} />
     </group>
   );
 };

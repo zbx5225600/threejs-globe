@@ -7,7 +7,7 @@ import { latLngToVector3 } from '../utils/coordinate';
  * 大洲标签组件
  * 与地球同步旋转
  */
-const ContinentLabels = ({ continents, earthRotationRef }) => {
+const ContinentLabels = ({ continents, earthRotationRef, earthRadius = 2 }) => {
   const groupRef = useRef();
 
   useFrame(() => {
@@ -19,7 +19,7 @@ const ContinentLabels = ({ continents, earthRotationRef }) => {
   return (
     <group ref={groupRef}>
       {continents.map((continent, index) => {
-        const pos = latLngToVector3(continent.lat, continent.lng, 2.03);
+        const pos = latLngToVector3(continent.lat, continent.lng, earthRadius + 0.03);
         return (
           <Text
             key={`continent-${index}`}

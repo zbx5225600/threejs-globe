@@ -7,7 +7,7 @@ import FlightRouteLights from './FlightRouteLights';
 /**
  * 航线组件 - 使用 Line 高性能渲染
  */
-const FlightRoutes = ({ routes }) => {
+const FlightRoutes = ({ routes, earthRadius = 2 }) => {
   const linesRef = useRef();
   const materialRef = useRef();
   const lightsRef = useRef();
@@ -15,9 +15,11 @@ const FlightRoutes = ({ routes }) => {
   // 生成航线路径 - 使用 useMemo 避免重复计算
   const { positions } = useMemo(() => {
     const posArray = [];
+    // 航线在地球表面上方一点
+    const arcEarthRadius = earthRadius + 0.02;
 
     routes.forEach((route) => {
-      const points = getArcPoints(route.from, route.to, 50);
+      const points = getArcPoints(route.from, route.to, 50, route.international || false, arcEarthRadius);
 
       for (let i = 0; i < points.length - 1; i++) {
         posArray.push(points[i].x, points[i].y, points[i].z);
@@ -69,7 +71,7 @@ const FlightRoutes = ({ routes }) => {
         />
       </line>
       {/* 30% 航线的动态光点 */}
-      <FlightRouteLights routes={routes} lightsRef={lightsRef} />
+      <FlightRouteLights routes={routes} lightsRef={lightsRef} earthRadius={earthRadius} />
     </group>
   );
 };

@@ -6,7 +6,7 @@ import { earthGlowVertexShader, earthGlowFragmentShader } from '../shaders/earth
 /**
  * 地球光晕组件 - 带渐显动画
  */
-const EarthGlow = ({ earthOpacityRef }) => {
+const EarthGlow = ({ earthOpacityRef, earthRadius = 2 }) => {
   const materialRef = useRef();
 
   useFrame(() => {
@@ -17,7 +17,7 @@ const EarthGlow = ({ earthOpacityRef }) => {
 
   return (
     <mesh>
-      <sphereGeometry args={[2.02, 64, 64]} />
+      <sphereGeometry args={[earthRadius + 0.02, 64, 64]} />
       <shaderMaterial
         ref={materialRef}
         vertexShader={earthGlowVertexShader}

@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { latLngToVector3 } from './coordinate';
 
 /**
@@ -6,11 +7,11 @@ import { latLngToVector3 } from './coordinate';
  * @param {Object} end - 终点 {lat, lng}
  * @param {number} segments - 分段数，默认 50
  * @param {boolean} isInternational - 是否为国际航线，默认 false
+ * @param {number} earthRadius - 地球半径，默认 2.02
  * @returns {THREE.Vector3[]} 路径点数组
  */
-export const getArcPoints = (start, end, segments = 50, isInternational = false) => {
+export const getArcPoints = (start, end, segments = 50, isInternational = false, earthRadius = 2.02) => {
   const points = [];
-  const earthRadius = 2.02;
   const startVec = latLngToVector3(start.lat, start.lng, earthRadius);
   const endVec = latLngToVector3(end.lat, end.lng, earthRadius);
 

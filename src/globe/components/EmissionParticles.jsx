@@ -8,7 +8,7 @@ import { latLngToVector3 } from '../utils/coordinate';
  * 粒子点组件 - 带开场动画
  * 使用 seeded random 确保随机值一致
  */
-const EmissionParticles = ({ globeData }) => {
+const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
   const pointsRef = useRef();
   const sizesRef = useRef();
   const dataRef = useRef({ initialPositions: null, targetPositions: null });
@@ -49,12 +49,15 @@ const EmissionParticles = ({ globeData }) => {
     }
     const random = createSeededRandom(42);
 
+    // 粒子在地球表面上方一点
+    const particleRadius = earthRadius + 0.05;
+
     globeData.forEach((point) => {
       const [lat, lng, val1] = point;
       const emissionValue = val1;
 
       // 目标位置（地球表面）
-      const pos = latLngToVector3(lat, lng, 2.05);
+      const pos = latLngToVector3(lat, lng, particleRadius);
       targetPositions.push(pos.x, pos.y, pos.z);
 
       // 初始位置（从外部空间随机位置）

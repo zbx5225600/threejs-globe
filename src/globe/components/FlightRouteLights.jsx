@@ -7,7 +7,7 @@ import { getArcPoints } from '../utils/geometry';
  * 航线动态光点组件
  * 使用 seeded random 确保随机值在重新渲染时保持一致
  */
-const FlightRouteLights = ({ routes, lightsRef }) => {
+const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
   const routeDataRef = useRef(null);
   const materialRef = useRef();
 
@@ -49,7 +49,9 @@ const FlightRouteLights = ({ routes, lightsRef }) => {
         route.from.lng < 73 || route.from.lng > 135 ||
         route.to.lng < 73 || route.to.lng > 135;
 
-      const points = getArcPoints(route.from, route.to, 50, isInternational);
+      // 航线在地球表面上方一点
+      const arcEarthRadius = earthRadius + 0.02;
+      const points = getArcPoints(route.from, route.to, 50, isInternational, arcEarthRadius);
       return {
         points,
         speed: (0.2 + random() * 0.3) * 0.2,
@@ -58,7 +60,7 @@ const FlightRouteLights = ({ routes, lightsRef }) => {
     });
 
     return data;
-  }, [routes]);
+  }, [routes, earthRadius]);
 
   useEffect(() => {
     routeDataRef.current = routeData;

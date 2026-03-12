@@ -47,7 +47,7 @@ export default function CO2Globe() {
         <p>Global Carbon Emission Monitoring System</p>
       </header>
 
-      {/* 图例 */}
+      {/* 图例 - 使用 CSS 控制在手机端隐藏 */}
       <aside className="legend-container">
         <div className="legend-title">UNIT: kgC/d</div>
         <div className="legend-content">

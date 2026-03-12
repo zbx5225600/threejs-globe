@@ -7,7 +7,7 @@ import { atmosphereVertexShader, atmosphereFragmentShader } from '../shaders/atm
  * 大气层组件 - 带渐显动画
  * 使用 memo 优化，避免不必要的重新渲染
  */
-const Atmosphere = ({ atmosphereRef, atmosphereMaterialRef }) => {
+const Atmosphere = ({ atmosphereRef, atmosphereMaterialRef, earthRadius = 2 }) => {
   const meshRef = useRef();
 
   useFrame(({ clock }) => {
@@ -33,7 +33,7 @@ const Atmosphere = ({ atmosphereRef, atmosphereMaterialRef }) => {
 
   return (
     <mesh ref={meshRef}>
-      <sphereGeometry args={[2.05, 64, 64]} />
+      <sphereGeometry args={[earthRadius + 0.05, 64, 64]} />
       <shaderMaterial
         ref={atmosphereMaterialRef}
         vertexShader={atmosphereVertexShader}

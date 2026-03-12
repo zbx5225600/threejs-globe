@@ -16,6 +16,13 @@
   justify-content: center;
 }
 
+/* 手机上隐藏图例 */
+@media screen and (max-width: 768px) {
+  .legend-container {
+    display: none;
+  }
+}
+
 /* 图例标题 */
 .legend-title {
   font-size: 12px;

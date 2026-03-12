@@ -5,12 +5,4 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: process.env.GITHUB_ACTIONS ? '/threejs-globe/' : '/',
-  build: {
-    rollupOptions: {
-      external: ['react', 'react-dom/client', 'three', '@react-three/fiber', '@react-three/drei'],
-      output: {
-        manualChunks: undefined
-      }
-    }
-  }
 })

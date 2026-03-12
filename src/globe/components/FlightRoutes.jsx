@@ -15,11 +15,13 @@ const FlightRoutes = ({ routes, earthRadius = 2 }) => {
   // 生成航线路径 - 使用 useMemo 避免重复计算
   const { positions } = useMemo(() => {
     const posArray = [];
-    // 航线在地球表面上方一点
-    const arcEarthRadius = earthRadius + 0.02;
 
     routes.forEach((route) => {
-      const points = getArcPoints(route.from, route.to, 50, route.international || false, arcEarthRadius);
+      // 根据经度判断是否为国际航线（跨区域航线）
+      const isInternational =
+        route.from.lng < 73 || route.from.lng > 135 ||
+        route.to.lng < 73 || route.to.lng > 135;
+      const points = getArcPoints(route.from, route.to, undefined, isInternational, earthRadius);
 
       for (let i = 0; i < points.length - 1; i++) {
         posArray.push(points[i].x, points[i].y, points[i].z);
@@ -50,8 +52,8 @@ const FlightRoutes = ({ routes, earthRadius = 2 }) => {
   });
 
   return (
-    <group>
-      <line ref={linesRef}>
+    <group renderOrder={10}>
+      <line ref={linesRef} renderOrder={10}>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
@@ -66,7 +68,8 @@ const FlightRoutes = ({ routes, earthRadius = 2 }) => {
           transparent
           opacity={0}
           blending={THREE.AdditiveBlending}
-          depthWrite={false}
+          depthWrite={true}
+          depthTest={true}
           linewidth={1}
         />
       </line>

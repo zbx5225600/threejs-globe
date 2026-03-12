@@ -42,20 +42,53 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
     }
     const random = createSeededRandom(12345);
 
-    const selectedRoutes = routes.filter(() => random() < 0.3);
+    // 中国经度范围约为 73°E - 135°E，纬度范围约为 18°N - 54°N
+    const isWithinChina = (lat, lng) => {
+      return lng >= 73 && lng <= 135 && lat >= 18 && lat <= 54;
+    };
+
+    const selectedRoutes = routes.filter((route) => {
+      // 只选择至少一端在中国境内的航线
+      const fromInChina = isWithinChina(route.from.lat, route.from.lng);
+      const toInChina = isWithinChina(route.to.lat, route.to.lng);
+      return fromInChina || toInChina;
+    }).filter(() => random() < 0.3);
 
     const data = selectedRoutes.map((route) => {
+      const fromInChina = isWithinChina(route.from.lat, route.from.lng);
+      const toInChina = isWithinChina(route.to.lat, route.to.lng);
+      const isDomestic = fromInChina && toInChina; // 两端都在中国境内
+
       const isInternational =
         route.from.lng < 73 || route.from.lng > 135 ||
         route.to.lng < 73 || route.to.lng > 135;
 
-      // 航线在地球表面上方一点
-      const arcEarthRadius = earthRadius + 0.02;
-      const points = getArcPoints(route.from, route.to, 50, isInternational, arcEarthRadius);
+      const points = getArcPoints(route.from, route.to, undefined, isInternational, earthRadius);
+
+      // 对于中国境内航线，计算光点只在中国境内的部分
+      let chinaStartRatio = 0;
+      let chinaEndRatio = 1;
+
+      if (isDomestic) {
+        // 两端都在中国，整条航线都在中国境内
+        chinaStartRatio = 0;
+        chinaEndRatio = 1;
+      } else if (fromInChina) {
+        // 起点在中国，终点在境外 - 只显示前半段
+        chinaStartRatio = 0;
+        chinaEndRatio = 0.6;
+      } else if (toInChina) {
+        // 终点在中国，起点在境外 - 只显示后半段
+        chinaStartRatio = 0.4;
+        chinaEndRatio = 1;
+      }
+
       return {
         points,
         speed: (0.2 + random() * 0.3) * 0.2,
-        delay: random() * 2
+        delay: random() * 2,
+        chinaStartRatio,
+        chinaEndRatio
       };
     });
 
@@ -88,9 +121,19 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
     const positions = [];
 
     routeDataRef.current.forEach((route) => {
-      const progress = (time * route.speed + route.delay) % 1;
+      // 计算基础进度（随时间循环）
+      const baseProgress = (time * route.speed + route.delay) % 1;
+
+      const { chinaStartRatio, chinaEndRatio } = route;
+
+      // 计算在有效范围内的进度
+      const effectiveProgress = chinaStartRatio + baseProgress * (chinaEndRatio - chinaStartRatio);
+
+      // 如果光点超出有效范围，跳过此航线
+      if (effectiveProgress <= 0 || effectiveProgress >= 1) return;
+
       const totalPoints = route.points.length - 1;
-      const progressIndex = progress * totalPoints;
+      const progressIndex = effectiveProgress * totalPoints;
       const pointIndex = Math.floor(progressIndex);
       const pointIndexNext = Math.min(pointIndex + 1, totalPoints);
       const segmentProgress = progressIndex - pointIndex;
@@ -121,7 +164,7 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
   }, [routeData.length]);
 
   return (
-    <points ref={lightsRef}>
+    <points ref={lightsRef} renderOrder={11}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
@@ -138,7 +181,8 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
         transparent
         opacity={0}
         blending={THREE.AdditiveBlending}
-        depthWrite={false}
+        depthWrite={true}
+        depthTest={true}
         sizeAttenuation
       />
     </points>

@@ -165,8 +165,8 @@ const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
         map={circleTexture}
         vertexColors
         transparent
-        depthWrite={false}
-        depthTest={false}
+        depthWrite={true}
+        depthTest={true}
         sizeAttenuation
         blending={THREE.AdditiveBlending}
       />

@@ -110,7 +110,8 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
             map={basemapTexture}
             transparent
             opacity={0}
-            depthWrite={false}
+            side={THREE.FrontSide}
+            depthWrite={true}
           />
         </Sphere>
 
@@ -121,8 +122,8 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
             map={earthTexture}
             transparent
             opacity={0}
-            blending={THREE.NormalBlending}
-            depthWrite={false}
+            side={THREE.FrontSide}
+            depthWrite={true}
           />
         </Sphere>
 
@@ -133,8 +134,8 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
             map={videoTexture}
             transparent
             opacity={0}
-            blending={THREE.NormalBlending}
-            depthWrite={false}
+            side={THREE.FrontSide}
+            depthWrite={true}
           />
         </Sphere>
 

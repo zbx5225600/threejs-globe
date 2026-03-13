@@ -5,17 +5,13 @@ import { latLngToVector3 } from '../utils/coordinate';
 
 /**
  * 大洲标签组件
- * 与地球同步旋转，但标签始终正对镜头
+ * 作为地球的子组件，跟随地球旋转，标签始终正对镜头
  */
-const ContinentLabels = ({ continents, earthRotationRef, earthRadius = 2 }) => {
-  const groupRef = useRef();
+const ContinentLabels = ({ continents, earthRadius = 2 }) => {
   const textRefs = useRef([]);
   const { camera } = useThree();
 
   useFrame(() => {
-    if (groupRef.current && earthRotationRef?.current) {
-      groupRef.current.rotation.y = earthRotationRef.current.rotation.y;
-    }
     // 让每个标签始终正对摄像机
     textRefs.current.forEach((textRef) => {
       if (textRef) {
@@ -25,7 +21,7 @@ const ContinentLabels = ({ continents, earthRotationRef, earthRadius = 2 }) => {
   });
 
   return (
-    <group ref={groupRef}>
+    <group>
       {continents.map((continent, index) => {
         const pos = latLngToVector3(continent.lat, continent.lng, earthRadius + 0.03);
         return (

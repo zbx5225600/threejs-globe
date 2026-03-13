@@ -144,6 +144,9 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
 
         {/* 第 5 层：航线 */}
         <FlightRoutes routes={routes} earthRadius={earthRadius} />
+
+        {/* 第 6 层：大洲标签 */}
+        <ContinentLabels continents={continents} earthRadius={earthRadius} />
       </group>
 
       {/* 地球光晕 */}
@@ -151,9 +154,6 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
 
       {/* 大气层 */}
       <Atmosphere atmosphereRef={atmosphereRef} atmosphereMaterialRef={atmosphereMaterialRef} earthRadius={earthRadius} />
-
-      {/* 大洲标签 */}
-      <ContinentLabels continents={continents} earthRotationRef={earthRef} earthRadius={earthRadius} />
     </group>
   );
 };

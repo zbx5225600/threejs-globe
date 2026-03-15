@@ -3,15 +3,32 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { getEmissionColor } from '../utils/color';
 import { latLngToVector3 } from '../utils/coordinate';
+import type { EmissionPoint } from '../data/dataTypes';
+
+/**
+ * 粒子点组件 Props
+ */
+interface EmissionParticlesProps {
+  globeData: EmissionPoint[];
+  earthRadius?: number;
+}
+
+/**
+ * 粒子数据引用接口
+ */
+interface DataRef {
+  initialPositions: Float32Array;
+  targetPositions: Float32Array;
+}
 
 /**
  * 粒子点组件 - 带开场动画
  * 使用 seeded random 确保随机值一致
  */
-const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
-  const pointsRef = useRef();
-  const sizesRef = useRef();
-  const dataRef = useRef({ initialPositions: null, targetPositions: null });
+const EmissionParticles = ({ globeData, earthRadius = 2 }: EmissionParticlesProps) => {
+  const pointsRef = useRef<THREE.Points>(null);
+  const sizesRef = useRef<Float32Array | null>(null);
+  const dataRef = useRef<DataRef>({ initialPositions: new Float32Array(), targetPositions: new Float32Array() });
 
   // 创建圆形纹理 - 使用 useMemo 避免重复创建
   const circleTexture = useMemo(() => {
@@ -20,13 +37,13 @@ const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
     canvas.height = 32;
     const ctx = canvas.getContext('2d');
 
-    const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    const gradient = ctx!.createRadialGradient(16, 16, 0, 16, 16, 16);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
     gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)');
     gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 32, 32);
+    ctx!.fillStyle = gradient;
+    ctx!.fillRect(0, 0, 32, 32);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
@@ -34,13 +51,13 @@ const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
   }, []);
 
   const { positions, colors, sizes, initialPositions, targetPositions } = useMemo(() => {
-    const targetPositions = [];
-    const initialPositionsArr = [];
-    const colors = [];
-    const sizes = [];
+    const targetPositions: number[] = [];
+    const initialPositionsArr: number[] = [];
+    const colors: number[] = [];
+    const sizes: number[] = [];
 
     // 使用 seeded random 避免重新渲染时变化
-    function createSeededRandom(seed) {
+    function createSeededRandom(seed: number) {
       let s = seed;
       return () => {
         s = (s * 9301 + 49297) % 233280;
@@ -86,7 +103,7 @@ const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
       initialPositions: new Float32Array(initialPositionsArr),
       targetPositions: new Float32Array(targetPositions)
     };
-  }, [globeData]);
+  }, [globeData, earthRadius]);
 
   useEffect(() => {
     dataRef.current = { initialPositions, targetPositions };
@@ -98,7 +115,7 @@ const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
 
   // 动画更新位置
   useFrame((state) => {
-    if (!pointsRef.current || !dataRef.current.initialPositions) return;
+    if (!pointsRef.current || !dataRef.current.initialPositions.length) return;
 
     const time = state.clock.elapsedTime;
     const geometry = pointsRef.current.geometry;
@@ -107,11 +124,11 @@ const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
     const { initialPositions, targetPositions } = dataRef.current;
 
     // 计算汇聚进度（0-1）
-    let progress;
+    let progress: number;
     if (time < 3) {
-      progress = time / 3 * 0.85;
+      progress = (time / 3) * 0.85;
     } else if (time < 5) {
-      progress = 0.85 + (time - 3) / 2 * 0.15;
+      progress = 0.85 + ((time - 3) / 2) * 0.15;
     } else {
       progress = 1;
     }
@@ -129,12 +146,12 @@ const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
 
     // 闪烁动画（汇聚完成后开始）
     if (progress >= 1 && sizesRef.current) {
-      const sizeArray = geometry.attributes.size.array;
+      const sizeArray = geometry.attributes.size.array as Float32Array;
       for (let i = 0; i < sizeArray.length; i++) {
         const flicker = 0.7 + 0.3 * Math.sin(time * 5 + i * 0.15);
         sizeArray[i] = sizesRef.current[i] * flicker;
       }
-      sizeArray.needsUpdate = true;
+      (sizeArray as unknown as { needsUpdate: boolean }).needsUpdate = true;
     }
   });
 
@@ -143,21 +160,15 @@ const EmissionParticles = ({ globeData, earthRadius = 2 }) => {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={positions.length / 3}
-          array={positions}
-          itemSize={3}
+          args={[positions, 3]}
         />
         <bufferAttribute
           attach="attributes-color"
-          count={colors.length / 3}
-          array={colors}
-          itemSize={3}
+          args={[colors, 3]}
         />
         <bufferAttribute
           attach="attributes-size"
-          count={sizes.length}
-          array={sizes}
-          itemSize={1}
+          args={[sizes, 1]}
         />
       </bufferGeometry>
       <pointsMaterial

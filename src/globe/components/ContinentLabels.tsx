@@ -1,14 +1,24 @@
 import { useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
+import * as THREE from 'three';
 import { latLngToVector3 } from '../utils/coordinate';
+import type { Continent } from '../data/dataTypes';
+
+/**
+ * 大洲标签组件 Props
+ */
+interface ContinentLabelsProps {
+  continents: Continent[];
+  earthRadius?: number;
+}
 
 /**
  * 大洲标签组件
  * 作为地球的子组件，跟随地球旋转，标签始终正对镜头
  */
-const ContinentLabels = ({ continents, earthRadius = 2 }) => {
-  const textRefs = useRef([]);
+const ContinentLabels = ({ continents, earthRadius = 2 }: ContinentLabelsProps) => {
+  const textRefs = useRef<(THREE.Mesh | null)[]>([]);
   const { camera } = useThree();
 
   useFrame(() => {
@@ -27,7 +37,7 @@ const ContinentLabels = ({ continents, earthRadius = 2 }) => {
         return (
           <Text
             key={`continent-${index}`}
-            ref={(el) => (textRefs.current[index] = el)}
+            ref={(el) => { textRefs.current[index] = el; }}
             position={pos}
             fontSize={0.04}
             color="rgba(255, 255, 255, 0.6)"

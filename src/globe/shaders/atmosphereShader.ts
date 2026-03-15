@@ -23,7 +23,7 @@ export const atmosphereFragmentShader = `
     vec3 color3 = vec3(0.6, 0.85, 1.0);
     vec3 finalColor = mix(color1, color2, intensity * 2.0);
     finalColor = mix(finalColor, color3, intensity * intensity * 3.0);
-    float pulse = sin(time * 0.5) * 0.05 + 0.95;
+    float pulse = sin(time * 0.5) * 0.95 + 0.05;
     finalColor *= pulse;
     gl_FragColor = vec4(finalColor, intensity * 0.8 * opacity);
   }

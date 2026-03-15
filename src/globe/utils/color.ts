@@ -2,10 +2,10 @@ import * as THREE from 'three';
 
 /**
  * 根据排放值获取颜色（使用线性插值）
- * @param {number} value - 排放值 (0-82)
- * @returns {THREE.Color} 颜色值
+ * @param value - 排放值 (0-82)
+ * @returns 颜色值
  */
-export const getEmissionColor = (value) => {
+export const getEmissionColor = (value: number): THREE.Color => {
   // 颜色映射：深蓝 -> 蓝 -> 青 -> 绿 -> 黄 -> 橙红
   const colorStops = [
     { value: 0, color: new THREE.Color(0x000022) },

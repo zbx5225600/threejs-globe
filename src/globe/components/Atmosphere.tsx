@@ -4,28 +4,40 @@ import * as THREE from 'three';
 import { atmosphereVertexShader, atmosphereFragmentShader } from '../shaders/atmosphereShader';
 
 /**
+ * 大气层组件 Props
+ */
+interface AtmosphereProps {
+  atmosphereRef?: React.MutableRefObject<THREE.Mesh | null>;
+  atmosphereMaterialRef?: React.MutableRefObject<THREE.ShaderMaterial | null>;
+  earthRadius?: number;
+}
+
+/**
  * 大气层组件 - 带渐显动画
  * 使用 memo 优化，避免不必要的重新渲染
  */
-const Atmosphere = ({ atmosphereRef, atmosphereMaterialRef, earthRadius = 2 }) => {
-  const meshRef = useRef();
+const Atmosphere = ({ atmosphereRef, atmosphereMaterialRef, earthRadius = 2 }: AtmosphereProps) => {
+  const meshRef = useRef<THREE.Mesh>(null);
 
   useFrame(({ clock }) => {
     const time = clock.elapsedTime;
 
     // 大气层渐显动画（2 秒后开始，持续 3 秒）
-    let opacity;
+    let opacity: number;
     if (time < 2) {
       opacity = 0;
     } else if (time < 5) {
-      opacity = (time - 2) / 3 * 0.8;
+      opacity = ((time - 2) / 3) * 0.8;
     } else {
       opacity = 0.8;
     }
 
     if (atmosphereRef?.current) {
-      atmosphereRef.current.uniforms.time.value = time;
-      atmosphereRef.current.uniforms.opacity.value = opacity;
+      const mesh = atmosphereRef.current as unknown as THREE.Mesh & { uniforms: { time: { value: number }; opacity: { value: number } } };
+      if (mesh.uniforms) {
+        mesh.uniforms.time.value = time;
+        mesh.uniforms.opacity.value = opacity;
+      }
     }
     if (atmosphereMaterialRef?.current) {
       atmosphereMaterialRef.current.opacity = 1;

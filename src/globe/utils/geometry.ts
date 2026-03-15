@@ -2,16 +2,30 @@ import * as THREE from 'three';
 import { latLngToVector3 } from './coordinate';
 
 /**
- * 计算两点之间的弧线路径
- * @param {Object} start - 起点 {lat, lng}
- * @param {Object} end - 终点 {lat, lng}
- * @param {number} segments - 分段数，默认根据距离动态计算
- * @param {boolean} isInternational - 是否为国际航线，默认 false
- * @param {number} earthRadius - 地球半径，默认 2.02
- * @returns {THREE.Vector3[]} 路径点数组
+ * 起点/终点坐标接口
  */
-export const getArcPoints = (start, end, segments, isInternational = false, earthRadius = 2.02) => {
-  const points = [];
+export interface GeoPoint {
+  lat: number;
+  lng: number;
+}
+
+/**
+ * 计算两点之间的弧线路径
+ * @param start - 起点 {lat, lng}
+ * @param end - 终点 {lat, lng}
+ * @param segments - 分段数，默认根据距离动态计算
+ * @param isInternational - 是否为国际航线，默认 false
+ * @param earthRadius - 地球半径，默认 2.02
+ * @returns 路径点数组
+ */
+export const getArcPoints = (
+  start: GeoPoint,
+  end: GeoPoint,
+  segments?: number,
+  isInternational: boolean = false,
+  earthRadius: number = 2.02
+): THREE.Vector3[] => {
+  const points: THREE.Vector3[] = [];
   const startVec = latLngToVector3(start.lat, start.lng, earthRadius);
   const endVec = latLngToVector3(end.lat, end.lng, earthRadius);
 

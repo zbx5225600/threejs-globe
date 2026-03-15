@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import Scene from './components/Scene';
 import simulatedData from './data/simulated-data.json';
 import './styles/index.css';
+import type { Continent, EmissionPoint } from './data/dataTypes';
 
 /**
  * CO2 排放监测地球主组件
@@ -11,8 +12,11 @@ import './styles/index.css';
  */
 export default function CO2Globe() {
   // 从 simulated-data.json 加载模拟数据 - 使用 useMemo 避免重复加载
-  const continents = useMemo(() => simulatedData.continents || [], []);
-  const globeData = useMemo(() => simulatedData.globe || [], []);
+  const continents = useMemo<Continent[]>(() => simulatedData.continents || [], []);
+  const globeData = useMemo<EmissionPoint[]>(
+    () => (simulatedData.globe || []).map((point) => point as EmissionPoint),
+    []
+  );
 
   return (
     <div

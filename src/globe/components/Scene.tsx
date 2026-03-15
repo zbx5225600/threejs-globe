@@ -3,14 +3,23 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import RealEarth from './RealEarth';
+import type { Continent, EmissionPoint } from '../data/dataTypes';
+
+/**
+ * 场景设置组件 Props
+ */
+interface SceneProps {
+  continents: Continent[];
+  globeData: EmissionPoint[];
+}
 
 /**
  * 场景设置组件
  * 负责相机、灯光、星空和轨道控制
  */
-const Scene = ({ continents, globeData }) => {
+const Scene = ({ continents, globeData }: SceneProps) => {
   const { camera, gl, size } = useThree();
-  const controlsRef = useRef();
+  const controlsRef = useRef<any>(null);
 
   // 根据屏幕尺寸计算适配参数
   const isMobile = useMemo(() => size.width < 768, [size.width]);

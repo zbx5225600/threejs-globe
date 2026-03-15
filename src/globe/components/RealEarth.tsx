@@ -11,18 +11,29 @@ import EarthGlow from './EarthGlow';
 import ContinentLabels from './ContinentLabels';
 import EmissionParticles from './EmissionParticles';
 import FlightRoutes from './FlightRoutes';
+import type { Continent, EmissionPoint, Route } from '../data/dataTypes';
+
+/**
+ * 真实地球组件 Props
+ */
+interface RealEarthProps {
+  continents: Continent[];
+  globeData: EmissionPoint[];
+  isMobile?: boolean;
+  earthRadius?: number;
+}
 
 /**
  * 真实地球组件 - 带渐显动画
  * 整合所有地球相关子组件
  */
-const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 }) => {
-  const earthRef = useRef();
-  const atmosphereRef = useRef();
-  const atmosphereMaterialRef = useRef();
-  const basemapMaterialRef = useRef();
-  const earthMaterialRef = useRef();
-  const videoMaterialRef = useRef();
+const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 }: RealEarthProps) => {
+  const earthRef = useRef<THREE.Group>(null);
+  const atmosphereRef = useRef<THREE.Mesh>(null);
+  const atmosphereMaterialRef = useRef<THREE.ShaderMaterial>(null);
+  const basemapMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const earthMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const videoMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
   const earthOpacityRef = useRef(0);
   const [basemapTexture, earthTexture] = useLoader(THREE.TextureLoader, [basemapImg, earthImg]);
 
@@ -30,7 +41,7 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
   const sphereSegments = isMobile ? 48 : 64;
 
   // 从 base-data.json 加载航线数据 - 使用 useMemo 避免重复加载
-  const routes = useMemo(() => baseData.routes || [], []);
+  const routes = useMemo<Route[]>(() => baseData.routes || [], []);
 
   // 视频纹理初始化 - 使用 useMemo 避免重复创建
   const videoTexture = useMemo(() => {
@@ -51,7 +62,7 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
 
   // 预加载图片资源
   useEffect(() => {
-    const loadTexture = (url) => {
+    const loadTexture = (url: string) => {
       const img = new Image();
       img.src = url;
     };
@@ -63,7 +74,7 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
     const time = clock.elapsedTime;
 
     // 地球渐显动画（2 秒后开始，持续 3 秒）
-    let earthOpacity;
+    let earthOpacity: number;
     if (time < 2) {
       earthOpacity = 0;
     } else if (time < 5) {
@@ -87,8 +98,11 @@ const RealEarth = ({ continents, globeData, isMobile = false, earthRadius = 2 })
       atmosphereMaterialRef.current.opacity = earthOpacity * 0.8;
     }
 
-    if (atmosphereRef.current) {
-      atmosphereRef.current.uniforms.time.value = time;
+    if (atmosphereRef?.current) {
+      const mesh = atmosphereRef.current as unknown as THREE.Mesh & { uniforms: { time: { value: number } } };
+      if (mesh.uniforms) {
+        mesh.uniforms.time.value = time;
+      }
     }
     if (earthRef.current) {
       // 初始旋转让中国面对摄像头

@@ -6,3 +6,4 @@ export { default as FlightRoutes } from './FlightRoutes';
 export { default as FlightRouteLights } from './FlightRouteLights';
 export { default as EmissionParticles } from './EmissionParticles';
 export { default as RealEarth } from './RealEarth';
+export { default as Scene } from './Scene';

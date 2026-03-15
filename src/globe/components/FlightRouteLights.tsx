@@ -2,14 +2,35 @@ import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { getArcPoints } from '../utils/geometry';
+import type { Route } from '../data/dataTypes';
+
+/**
+ * 航线动态光点组件 Props
+ */
+interface FlightRouteLightsProps {
+  routes: Route[];
+  lightsRef?: React.MutableRefObject<THREE.Points | null>;
+  earthRadius?: number;
+}
+
+/**
+ * 航线动态光点数据结构
+ */
+interface RouteData {
+  points: THREE.Vector3[];
+  speed: number;
+  delay: number;
+  chinaStartRatio: number;
+  chinaEndRatio: number;
+}
 
 /**
  * 航线动态光点组件
  * 使用 seeded random 确保随机值在重新渲染时保持一致
  */
-const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
-  const routeDataRef = useRef(null);
-  const materialRef = useRef();
+const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }: FlightRouteLightsProps) => {
+  const routeDataRef = useRef<RouteData[] | null>(null);
+  const materialRef = useRef<THREE.PointsMaterial>(null);
 
   // 创建圆形纹理 - 使用 useMemo 避免重复创建
   const circleTexture = useMemo(() => {
@@ -18,13 +39,13 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
     canvas.height = 32;
     const ctx = canvas.getContext('2d');
 
-    const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    const gradient = ctx!.createRadialGradient(16, 16, 0, 16, 16, 16);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
     gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)');
     gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 32, 32);
+    ctx!.fillStyle = gradient;
+    ctx!.fillRect(0, 0, 32, 32);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
@@ -33,7 +54,7 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
 
   // 使用 seeded random 确保随机值只在初始化时计算一次
   const routeData = useMemo(() => {
-    function createSeededRandom(seed) {
+    function createSeededRandom(seed: number) {
       let s = seed;
       return () => {
         s = (s * 9301 + 49297) % 233280;
@@ -43,7 +64,7 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
     const random = createSeededRandom(12345);
 
     // 中国经度范围约为 73°E - 135°E，纬度范围约为 18°N - 54°N
-    const isWithinChina = (lat, lng) => {
+    const isWithinChina = (lat: number, lng: number): boolean => {
       return lng >= 73 && lng <= 135 && lat >= 18 && lat <= 54;
     };
 
@@ -100,16 +121,16 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
   }, [routeData]);
 
   useFrame((state) => {
-    if (!lightsRef.current || !routeDataRef.current) return;
+    if (!lightsRef?.current || !routeDataRef.current) return;
 
     const time = state.clock.elapsedTime;
 
     // 光点渐显（4 秒后开始，持续 2 秒）
-    let opacity;
+    let opacity: number;
     if (time < 4) {
       opacity = 0;
     } else if (time < 6) {
-      opacity = (time - 4) / 2 * 0.9;
+      opacity = ((time - 4) / 2) * 0.9;
     } else {
       opacity = 0.9;
     }
@@ -118,7 +139,7 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
       materialRef.current.opacity = opacity;
     }
 
-    const positions = [];
+    const positions: number[] = [];
 
     routeDataRef.current.forEach((route) => {
       // 计算基础进度（随时间循环）
@@ -148,7 +169,7 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
       positions.push(x, y, z);
     });
 
-    if (positions.length > 0) {
+    if (positions.length > 0 && lightsRef?.current) {
       const geometry = lightsRef.current.geometry;
       const positionAttribute = geometry.getAttribute('position');
       positionAttribute.array.set(positions);
@@ -168,9 +189,7 @@ const FlightRouteLights = ({ routes, lightsRef, earthRadius = 2 }) => {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={routeData.length}
-          array={initialPositions}
-          itemSize={3}
+          args={[initialPositions, 3]}
         />
       </bufferGeometry>
       <pointsMaterial
